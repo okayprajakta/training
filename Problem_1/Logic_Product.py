@@ -1,14 +1,19 @@
-from db import dbConnection
+from db import db_connection
 from Product import Product
 import sqlite3
 
-class Logic:
-    """logic part of PS1"""
+"""Logic class for product management system"""
+class logic:
     def __init__(self):
-        self.connection = dbConnection()
+        self.connection = db_connection()
 
     def add_product(self, new_product):
-        """" adding product obj, returning boolean"""
+        """Adding product object to product list
+        
+        Input: New_product object
+        
+        Return: Boolean"""
+
         try:
             with self.connection:
                 self.connection.execute(
@@ -20,19 +25,19 @@ class Logic:
             return False
 
     def list_products(self):
-        """
-        List all products
+        """ List all products
         
-        Return: list of products or empty list
-        """
+        Returns: list of products or empty list """
         cursor = self.connection.execute('SELECT id, name, price FROM products')
         products = [Product(row[0], row[1], row[2]) for row in cursor.fetchall()]
         return products
 
     def update_product(self, update_product):
-        """
-        Updating the price & Returning boolean
-        """
+        """ Update the price of the given product
+        
+        Input: update_product object
+        
+        Return: boolean """
         with self.connection:
             cursor = self.connection.execute(
                 'UPDATE products SET price = ? WHERE id = ?',
@@ -40,12 +45,14 @@ class Logic:
             )
             return cursor.rowcount > 0
         return False
-    def apply_discount(self, discount_percentage):
-        """
-        Apply discount & Returing list of products after discount or empty list
-        """
+    def apply_discount(self, discount_percent):
+        """ Apply discount to all products
+        
+        Input: discount_percentage as int
+        
+        Return: list of products after applying discount or empty list """
         products = self.list_products()
         for product in products:
-            product.price -= product.price * (discount_percentage / 100)
+            product.price -= product.price * (discount_percent / 100)
             self.update_product(product)
         return products
